@@ -3,33 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acesso Fábrica</title>
+    <title>Sistema de Gestão - Fábrica</title>
     <style>
-        body { background-color: #2c3e50; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: white; padding: 30px; border-radius: 10px; text-align: center; width: 280px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-        #msg { color: red; margin-top: 10px; display: none; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #2c3e50; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); width: 350px; text-align: center; }
+        h2 { color: #2c3e50; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
+        .menu-paineis { display: none; }
+        .btn-planilha { background-color: #34495e; margin-bottom: 10px; text-decoration: none; display: block; color: white; padding: 15px; border-radius: 8px; font-weight: bold; }
+        .btn-planilha:hover { background-color: #1abc9c; }
+        #erro { color: red; font-size: 14px; display: none; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="box">
+
+    <div class="container" id="login-box">
         <h2>Acesso Fábrica</h2>
-        <input type="text" id="u" placeholder="Usuário">
-        <input type="password" id="s" placeholder="Senha">
-        <button onclick="entrar()">Entrar</button>
-        <p id="msg">Erro no login!</p>
+        <input type="text" id="user" placeholder="Usuário">
+        <input type="password" id="pass" placeholder="Senha">
+        <button onclick="logar()">Entrar</button>
+        <p id="erro">Usuário ou senha incorretos!</p>
     </div>
+
+    <div class="container menu-paineis" id="menu-box">
+        <h2>Painel de Controle</h2>
+        <p>Escolha a planilha desejada:</p>
+        
+        <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vTFp5SpS0lmNUOzjNTupadXLheiS1Ogg8I3A8-F01Kl3HATYBYUBwou8oopUccDAgZr_MO-G_Iv3vNk/pub?output=csv" target="_blank" class="btn-planilha">📊 Dados Analisados</a>
+        
+        <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vS0zjBPropVwU-_15k8N2mAp3FoTeAe6sov8zhR3vPf8CpBpKV-NDly-g3k3yGeB-jz-cWztGGR3rsA/pubhtml" target="_blank" class="btn-planilha">🚚 Chegada de Material</a>
+        
+        <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQ2iEdppyJrZRZI_eBZm1mxmiyPS3qibLO8" target="_blank" class="btn-planilha">🧪 Relatório Adesivo/Cola</a>
+        
+        <a href="https://1drv.ms/x/c/078f9410b1f16ca1/IQQqcJRwOcoCT40aTOowRSjqAVumwm3dFj51zlT7uOtgT8s" target="_blank" class="btn-planilha">📅 Programação</a>
+        
+        <a href="https://1drv.ms/x/c/078f9410b1f16ca1/IQR12EaM_KIiTqMm4YPbVOGqASLZeHLUxWf7ZS2LRlIy7ck" target="_blank" class="btn-planilha">📦 Material Fábrica</a>
+
+        <button onclick="window.location.reload()" style="background-color: #e74c3c;">Sair</button>
+    </div>
+
     <script>
-        function entrar() {
-            const u = document.getElementById('u').value;
-            const s = document.getElementById('s').value;
+        function logar() {
+            const u = document.getElementById('user').value;
+            const s = document.getElementById('pass').value;
             const users = {"Elias":"elias123", "Pedro":"pedro123", "Elivelton":"eli123", "Douglas":"doug123"};
+
             if(users[u] && users[u] === s) {
-                alert('Entrando...');
-                window.location.href = "https://www.google.com";
+                document.getElementById('login-box').style.display = 'none';
+                document.getElementById('menu-box').style.display = 'block';
             } else {
-                document.getElementById('msg').style.display = 'block';
+                document.getElementById('erro').style.display = 'block';
             }
         }
     </script>
