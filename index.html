@@ -1,160 +1,50 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Produção - Restrito</title>
+    <title>Sistema de Produção - Fábrica</title>
     <style>
-        :root { --primary: #007bff; --dark: #212529; --success: #28a745; --danger: #dc3545; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        
-        /* Login */
-        #loginArea { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: center; width: 320px; }
-        .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        .btn-login { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
-        
-        /* Painel Principal */
-        .container { width: 95%; max-width: 1200px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); display: none; margin: 20px; }
-        h2 { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
-        .header-meta { display: flex; justify-content: space-between; flex-wrap: wrap; margin-bottom: 20px; font-size: 0.9em; color: #555; background: #f8f9fa; padding: 10px; border-radius: 8px; }
-        
-        /* Busca e Tabela */
-        .search-box { display: flex; gap: 10px; margin-bottom: 25px; }
-        .search-box input { flex-grow: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; }
-        .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th, td { padding: 15px; text-align: center; border-bottom: 1px solid #eee; }
-        th { background: var(--dark); color: white; font-size: 0.8em; text-transform: uppercase; }
-        .destaque { background: #e7f3ff; font-weight: bold; }
-        .input-negativo { width: 90px; padding: 8px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-weight: bold; }
-        .saldo-final { font-size: 1.3em; font-weight: bold; }
-        .vermelho { color: var(--danger); }
-        .verde { color: var(--success); }
+        body { font-family: Arial, sans-serif; background-color: #2c3e50; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); width: 300px; text-align: center; }
+        h2 { color: #333; margin-bottom: 20px; }
+        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+        button { width: 100%; padding: 10px; background-color: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #219150; }
+        #error { color: red; font-size: 14px; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
 
-<div id="loginArea">
-    <h2 style="margin-bottom: 5px;">Acesso Fábrica</h2>
-    <p style="font-size: 0.8em; color: #666; margin-bottom: 20px;">Insira suas credenciais</p>
-    <input type="text" id="usuario" class="login-input" placeholder="Usuário">
-    <input type="password" id="senha" class="login-input" placeholder="Senha">
-    <button class="btn-login" onclick="validarLogin()">Entrar</button>
-</div>
-
-<div id="painelPrincipal" class="container">
-    <div class="header-meta">
-        <div><strong>Operador:</strong> <span id="nomeOp"></span></div>
-        <div id="dataRef"></div>
-        <div style="cursor:pointer; color:red" onclick="location.reload()">[ Sair ]</div>
+    <div class="login-card" id="login-screen">
+        <h2>Acesso Fábrica</h2>
+        <input type="text" id="user" placeholder="Usuário">
+        <input type="password" id="pass" placeholder="Senha">
+        <button onclick="logar()">Entrar</button>
+        <p id="error">Usuário ou senha incorretos!</p>
     </div>
 
-    <h2>Consolidação de Disponibilidade</h2>
-    
-    <div class="search-box">
-        <input type="text" id="codBusca" placeholder="Código do Produto (ex: 5159)">
-        <button onclick="buscar()">Consultar</button>
-    </div>
+    <script>
+        const usuarios = {
+            "Elias": "elias123",
+            "Pedro": "pedro123",
+            "Elivelton": "eli123",
+            "Douglas": "doug123"
+        };
 
-    <div class="table-wrapper" id="resultadoArea"></div>
-</div>
+        function logar() {
+            const u = document.getElementById('user').value;
+            const s = document.getElementById('pass').value;
+            const erro = document.getElementById('error');
 
-<script>
-    // --- CONFIGURAÇÕES ---
-    const ACESSOS = {
-        "Elias": "elias123",
-        "Pedro": "pedro123",
-        "Elivelton": "eli123",
-        "Douglas": "doug123"
-    };
-
-    const URL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTFp5SpS0lmNUOzjNTupadXLheiS1Ogg8I3A8-F01Kl3HATYBYUBwou8oopUccDAgZr_MO-G_Iv3vNk/pub?output=csv";
-
-    // --- LÓGICA DE LOGIN ---
-    function validarLogin() {
-        const u = document.getElementById('usuario').value.trim();
-        const s = document.getElementById('senha').value;
-        const uReal = Object.keys(ACESSOS).find(nome => nome.toLowerCase() === u.toLowerCase());
-
-        if (uReal && ACESSOS[uReal] === s) {
-            document.getElementById('loginArea').style.display = 'none';
-            document.getElementById('painelPrincipal').style.display = 'block';
-            document.getElementById('nomeOp').innerText = uReal;
-            definirData();
-        } else {
-            alert("Credenciais Inválidas!");
-        }
-    }
-
-    // --- LÓGICA DE DATA (Sexta se for FDS) ---
-    function definirData() {
-        let hoje = new Date();
-        let dia = hoje.getDay(); // 0:Dom, 6:Sáb
-        let ref = new Date(hoje);
-        if (dia === 0) ref.setDate(hoje.getDate() - 2);
-        else if (dia === 6) ref.setDate(hoje.getDate() - 1);
-        document.getElementById('dataRef').innerText = "📅 Ref. Chegada: " + ref.toLocaleDateString('pt-BR');
-    }
-
-    // --- BUSCA NA PLANILHA ---
-    async function buscar() {
-        const cod = document.getElementById('codBusca').value.trim();
-        if (!cod) return;
-
-        try {
-            const resp = await fetch(URL_CSV);
-            const csv = await resp.text();
-            const linhas = csv.split("\n");
-            let dado = null;
-
-            for (let i = 1; i < linhas.length; i++) {
-                const col = linhas[i].split(",");
-                if (col[0].trim() === cod) {
-                    dado = {
-                        cod: col[0],
-                        prog: parseFloat(col[2]) || 0,
-                        cheg: parseFloat(col[3]) || 0,
-                        fab: parseFloat(col[4]) || 0,
-                        psd_c: parseFloat(col[5]) || 0,
-                        psd_r: parseFloat(col[6]) || 0
-                    };
-                    break;
-                }
+            if (usuarios[u] && usuarios[u] === s) {
+                alert('Acesso concedido! Redirecionando para o painel...');
+                // Aqui você pode colocar o link da sua planilha ou painel principal
+                window.location.href = "https://www.google.com"; 
+            } else {
+                erro.style.display = 'block';
             }
-
-            if (dado) mostrarTabela(dado);
-            else alert("Código não encontrado!");
-        } catch (e) { alert("Erro de conexão com a planilha."); }
-    }
-
-    function mostrarTabela(d) {
-        const total = d.prog + d.cheg + d.fab + d.psd_c + d.psd_r;
-        document.getElementById('resultadoArea').innerHTML = `
-            <table>
-                <thead>
-                    <tr>
-                        <th>Cód</th><th>Prog.</th><th>Chegada</th><th>Fábrica</th><th>PSD Cheg.</th><th>PSD Ret.</th>
-                        <th class="destaque">TOTAL DISP.</th><th>NECESSIDADE (-)</th><th class="destaque">SALDO DEVEDOR</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>${d.cod}</td><td>${d.prog}</td><td>${d.cheg}</td><td>${d.fab}</td><td>${d.psd_c}</td><td>${d.psd_r}</td>
-                        <td class="destaque">${total}</td>
-                        <td><input type="number" class="input-negativo" id="nVal" oninput="calc(${total})" placeholder="0"></td>
-                        <td id="sVal" class="saldo-final">--</td>
-                    </tr>
-                </tbody>
-            </table>`;
-    }
-
-    function calc(t) {
-        const n = parseFloat(document.getElementById('nVal').value) || 0;
-        const s = t - n;
-        const campo = document.getElementById('sVal');
-        campo.innerText = s;
-        campo.className = s < 0 ? "saldo-final vermelho" : "saldo-final verde";
-    }
-</script>
+        }
+    </script>
 </body>
 </html>
